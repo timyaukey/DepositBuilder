@@ -51,7 +51,7 @@ Friend Class BuilderForm
         mintCardMachineBrackets = 1
         maudtCardMachineBracket(1).datStartDate = #1/1/1990#
         maudtCardMachineBracket(1).intMachineCount = 1
-        mstrOutputFile = My.Application.Info.DirectoryPath & "\DepositBuilderOutput.xml"
+        mstrOutputFile = My.Application.Info.DirectoryPath & "\Sales Deposits.gen"
 		mintOutputFile = FreeFile
 		FileOpen(mintOutputFile, mstrOutputFile, OpenMode.Output)
 		mastrInputLines = Split(txtInput.Text, vbCrLf)
@@ -60,48 +60,50 @@ Friend Class BuilderForm
 			If blnEndOfInput() Then
 				Exit Do
 			End If
-			strLine = strNextInputLine()
-			astrFields = Split(strLine, ";")
-			strCmd = astrFields(0)
-			If strCmd = "startseq" Then
-				mintStartSeq = Val(astrFields(1))
-			ElseIf strCmd = "repeatkey" Then 
-				mstrRepeatKey = astrFields(1)
-			ElseIf strCmd = "cashdelay" Then 
-				maintCashDelay(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
-			ElseIf strCmd = "carddelay" Then 
-				maintCardDelay(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
-			ElseIf strCmd = "dayweight" Then 
-				madblDayWeight(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
-				ComputeTotalDayWeight()
-			ElseIf strCmd = "cashcatkey" Then 
-				mstrCashCatKey = astrFields(1)
-				mdblCashWeight = Val(astrFields(2))
-				ComputeTotalCatWeight()
-			ElseIf strCmd = "cardcatkey" Then 
-				mstrCardCatKey = astrFields(1)
-				mdblCardWeight = Val(astrFields(2))
-                ComputeTotalCatWeight()
-            ElseIf strCmd = "cardmachinecount" Then
-                mintCardMachineBrackets = mintCardMachineBrackets + 1
-                maudtCardMachineBracket(mintCardMachineBrackets).datStartDate = CDate(astrFields(1))
-                maudtCardMachineBracket(mintCardMachineBrackets).intMachineCount = CInt(astrFields(2))
-                If maudtCardMachineBracket(mintCardMachineBrackets).datStartDate <= _
-                    maudtCardMachineBracket(mintCardMachineBrackets - 1).datStartDate Then
-                    MsgBox("Card machine count dates must be in increasing order")
-                    End
+            strLine = strNextInputLine()
+            If Not strLine.StartsWith("!") Then
+                astrFields = Split(strLine, ";")
+                strCmd = astrFields(0)
+                If strCmd = "startseq" Then
+                    mintStartSeq = Val(astrFields(1))
+                ElseIf strCmd = "repeatkey" Then
+                    mstrRepeatKey = astrFields(1)
+                ElseIf strCmd = "cashdelay" Then
+                    maintCashDelay(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
+                ElseIf strCmd = "carddelay" Then
+                    maintCardDelay(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
+                ElseIf strCmd = "dayweight" Then
+                    madblDayWeight(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
+                    ComputeTotalDayWeight()
+                ElseIf strCmd = "cashcatkey" Then
+                    mstrCashCatKey = astrFields(1)
+                    mdblCashWeight = Val(astrFields(2))
+                    ComputeTotalCatWeight()
+                ElseIf strCmd = "cardcatkey" Then
+                    mstrCardCatKey = astrFields(1)
+                    mdblCardWeight = Val(astrFields(2))
+                    ComputeTotalCatWeight()
+                ElseIf strCmd = "cardmachinecount" Then
+                    mintCardMachineBrackets = mintCardMachineBrackets + 1
+                    maudtCardMachineBracket(mintCardMachineBrackets).datStartDate = CDate(astrFields(1))
+                    maudtCardMachineBracket(mintCardMachineBrackets).intMachineCount = CInt(astrFields(2))
+                    If maudtCardMachineBracket(mintCardMachineBrackets).datStartDate <= _
+                        maudtCardMachineBracket(mintCardMachineBrackets - 1).datStartDate Then
+                        MsgBox("Card machine count dates must be in increasing order")
+                        End
+                    End If
+                ElseIf strCmd = "week" Then
+                    If Not blnDidFirstWeek Then
+                        ConfirmAllSetupDone()
+                        WriteLine_Renamed("<generator class=""wccheckbook.list"" description=""Daily Sales"" enabled=""true""" & " repeatkey=""" & mstrRepeatKey & """ startseq=""" & mintStartSeq & """>")
+                        blnDidFirstWeek = True
+                    End If
+                    OutputWeek(astrFields)
+                Else
+                    MsgBox("Unrecognized command " & strCmd)
+                    Exit Sub
                 End If
-            ElseIf strCmd = "week" Then
-                If Not blnDidFirstWeek Then
-                    ConfirmAllSetupDone()
-                    WriteLine_Renamed("<generator class=""wccheckbook.list"" description=""Daily Sales"" enabled=""true""" & " repeatkey=""" & mstrRepeatKey & """ startseq=""" & mintStartSeq & """>")
-                    blnDidFirstWeek = True
-                End If
-                OutputWeek(astrFields)
-			Else
-				MsgBox("Unrecognized command " & strCmd)
-				Exit Sub
-			End If
+            End If
 		Loop 
 		WriteLine_Renamed("</generator>")
 		FileClose(mintOutputFile)
