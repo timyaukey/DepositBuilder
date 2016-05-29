@@ -99,6 +99,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SchmidtsLongTerm1.txt" />
     <Content Include="SchmidtsNewCautious.txt" />
   </ItemGroup>
   <ItemGroup>

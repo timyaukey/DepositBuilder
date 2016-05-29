@@ -61,7 +61,7 @@ Friend Class BuilderForm
 				Exit Do
 			End If
             strLine = strNextInputLine()
-            If Not strLine.StartsWith("!") Then
+            If Not (strLine.StartsWith("!") Or strLine = "") Then
                 astrFields = Split(strLine, ";")
                 strCmd = astrFields(0)
                 If strCmd = "startseq" Then
