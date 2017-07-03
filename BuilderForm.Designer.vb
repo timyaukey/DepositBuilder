@@ -23,72 +23,61 @@
 	'It can be modified using the Windows Form Designer.
 	'Do not modify it using the code editor.
 	<System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
-		Dim resources As System.Resources.ResourceManager = New System.Resources.ResourceManager(GetType(BuilderForm))
-		Me.components = New System.ComponentModel.Container()
-		Me.ToolTip1 = New System.Windows.Forms.ToolTip(components)
-		Me.cmdBuild = New System.Windows.Forms.Button
-		Me.txtInput = New System.Windows.Forms.TextBox
-		Me.SuspendLayout()
-		Me.ToolTip1.Active = True
-		Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
-		Me.Text = "Daily Deposit Builder"
-		Me.ClientSize = New System.Drawing.Size(419, 443)
-		Me.Location = New System.Drawing.Point(3, 23)
-		Me.MaximizeBox = False
-		Me.MinimizeBox = False
-		Me.StartPosition = System.Windows.Forms.FormStartPosition.WindowsDefaultLocation
-		Me.Font = New System.Drawing.Font("Arial", 8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-		Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-		Me.BackColor = System.Drawing.SystemColors.Control
-		Me.ControlBox = True
-		Me.Enabled = True
-		Me.KeyPreview = False
-		Me.Cursor = System.Windows.Forms.Cursors.Default
-		Me.RightToLeft = System.Windows.Forms.RightToLeft.No
-		Me.ShowInTaskbar = True
-		Me.HelpButton = False
-		Me.WindowState = System.Windows.Forms.FormWindowState.Normal
-		Me.Name = "BuilderForm"
-		Me.cmdBuild.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-		Me.cmdBuild.Text = "Build Output.gen File"
-		Me.cmdBuild.Size = New System.Drawing.Size(123, 39)
-		Me.cmdBuild.Location = New System.Drawing.Point(274, 390)
-		Me.cmdBuild.TabIndex = 1
-		Me.cmdBuild.Font = New System.Drawing.Font("Arial", 8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-		Me.cmdBuild.BackColor = System.Drawing.SystemColors.Control
-		Me.cmdBuild.CausesValidation = True
-		Me.cmdBuild.Enabled = True
-		Me.cmdBuild.ForeColor = System.Drawing.SystemColors.ControlText
-		Me.cmdBuild.Cursor = System.Windows.Forms.Cursors.Default
-		Me.cmdBuild.RightToLeft = System.Windows.Forms.RightToLeft.No
-		Me.cmdBuild.TabStop = True
-		Me.cmdBuild.Name = "cmdBuild"
-		Me.txtInput.AutoSize = False
-		Me.txtInput.Size = New System.Drawing.Size(387, 353)
-		Me.txtInput.Location = New System.Drawing.Point(12, 14)
-		Me.txtInput.MultiLine = True
-		Me.txtInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-		Me.txtInput.TabIndex = 0
-		Me.txtInput.Font = New System.Drawing.Font("Arial", 8!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-		Me.txtInput.AcceptsReturn = True
-		Me.txtInput.TextAlign = System.Windows.Forms.HorizontalAlignment.Left
-		Me.txtInput.BackColor = System.Drawing.SystemColors.Window
-		Me.txtInput.CausesValidation = True
-		Me.txtInput.Enabled = True
-		Me.txtInput.ForeColor = System.Drawing.SystemColors.WindowText
-		Me.txtInput.HideSelection = True
-		Me.txtInput.ReadOnly = False
-		Me.txtInput.Maxlength = 0
-		Me.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam
-		Me.txtInput.RightToLeft = System.Windows.Forms.RightToLeft.No
-		Me.txtInput.TabStop = True
-		Me.txtInput.Visible = True
-		Me.txtInput.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-		Me.txtInput.Name = "txtInput"
-		Me.Controls.Add(cmdBuild)
-		Me.Controls.Add(txtInput)
-		Me.ResumeLayout(False)
-		Me.PerformLayout()
-	End Sub
-#End Region 
+        Me.components = New System.ComponentModel.Container()
+        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.cmdBuild = New System.Windows.Forms.Button()
+        Me.txtInput = New System.Windows.Forms.TextBox()
+        Me.SuspendLayout()
+        '
+        'cmdBuild
+        '
+        Me.cmdBuild.BackColor = System.Drawing.SystemColors.Control
+        Me.cmdBuild.Cursor = System.Windows.Forms.Cursors.Default
+        Me.cmdBuild.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.cmdBuild.ForeColor = System.Drawing.SystemColors.ControlText
+        Me.cmdBuild.Location = New System.Drawing.Point(274, 390)
+        Me.cmdBuild.Name = "cmdBuild"
+        Me.cmdBuild.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.cmdBuild.Size = New System.Drawing.Size(123, 39)
+        Me.cmdBuild.TabIndex = 1
+        Me.cmdBuild.Text = "Build Output Files"
+        Me.cmdBuild.UseVisualStyleBackColor = False
+        '
+        'txtInput
+        '
+        Me.txtInput.AcceptsReturn = True
+        Me.txtInput.BackColor = System.Drawing.SystemColors.Window
+        Me.txtInput.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtInput.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtInput.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.txtInput.Location = New System.Drawing.Point(12, 14)
+        Me.txtInput.MaxLength = 0
+        Me.txtInput.Multiline = True
+        Me.txtInput.Name = "txtInput"
+        Me.txtInput.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.txtInput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtInput.Size = New System.Drawing.Size(387, 353)
+        Me.txtInput.TabIndex = 0
+        '
+        'BuilderForm
+        '
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 14.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackColor = System.Drawing.SystemColors.Control
+        Me.ClientSize = New System.Drawing.Size(419, 443)
+        Me.Controls.Add(Me.cmdBuild)
+        Me.Controls.Add(Me.txtInput)
+        Me.Cursor = System.Windows.Forms.Cursors.Default
+        Me.Font = New System.Drawing.Font("Arial", 8.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
+        Me.Location = New System.Drawing.Point(3, 23)
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
+        Me.Name = "BuilderForm"
+        Me.RightToLeft = System.Windows.Forms.RightToLeft.No
+        Me.Text = "Daily Deposit Builder"
+        Me.ResumeLayout(False)
+
+    End Sub
+#End Region
 End Class

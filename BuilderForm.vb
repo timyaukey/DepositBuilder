@@ -42,24 +42,32 @@ Friend Class BuilderForm
 		strText = strText & "dayweight;mon;1.25" & vbCrLf & "dayweight;tue;1" & vbCrLf & "dayweight;wed;1" & vbCrLf & "dayweight;thu;1" & vbCrLf & "dayweight;fri;1.5" & vbCrLf & "dayweight;sat;2.5" & vbCrLf & "dayweight;sun;2.0" & vbCrLf & "cashcatkey;003;1" & vbCrLf & "cardcatkey;004;3" & vbCrLf & "week;5/3/2010;30000" & vbCrLf & "week;5/10/2010;32000" & vbCrLf & "week;5/17/2010;33000"
 		txtInput.Text = strText
 	End Sub
-	
-	Private Sub cmdBuild_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdBuild.Click
-		Dim strLine As String
+
+    Private Sub cmdBuild_Click(ByVal eventSender As System.Object, ByVal eventArgs As System.EventArgs) Handles cmdBuild.Click
+        BuildFile(True, "DepositsCash.gen", "_cash", "Daily Cash Deposits", "4")
+        BuildFile(False, "DepositsCard.gen", "_card", "Daily Card Deposits", "4")
+    End Sub
+
+    Private Sub BuildFile(ByVal blnForCash As Boolean, ByVal strBaseFileName As String, ByVal strKeySuffix As String,
+                          ByVal strDescr As String, ByVal strMaxDaysOld As String)
+
+        Dim strLine As String
         Dim astrFields() As String
-		Dim strCmd As String
+        Dim strCmd As String
         Dim blnDidFirstWeek As Boolean
+
         mintCardMachineBrackets = 1
         maudtCardMachineBracket(1).datStartDate = #1/1/1990#
         maudtCardMachineBracket(1).intMachineCount = 1
-        mstrOutputFile = My.Application.Info.DirectoryPath & "\Sales Deposits.gen"
-		mintOutputFile = FreeFile
-		FileOpen(mintOutputFile, mstrOutputFile, OpenMode.Output)
-		mastrInputLines = Split(txtInput.Text, vbCrLf)
-		mintNextInputLine = LBound(mastrInputLines)
-		Do 
-			If blnEndOfInput() Then
-				Exit Do
-			End If
+        mstrOutputFile = My.Application.Info.DirectoryPath & "\" & strBaseFileName
+        mintOutputFile = FreeFile()
+        FileOpen(mintOutputFile, mstrOutputFile, OpenMode.Output)
+        mastrInputLines = Split(txtInput.Text, vbCrLf)
+        mintNextInputLine = LBound(mastrInputLines)
+        Do
+            If blnEndOfInput() Then
+                Exit Do
+            End If
             strLine = strNextInputLine()
             If Not (strLine.StartsWith("!") Or strLine = "") Then
                 astrFields = Split(strLine, ";")
@@ -67,7 +75,7 @@ Friend Class BuilderForm
                 If strCmd = "startseq" Then
                     mintStartSeq = Val(astrFields(1))
                 ElseIf strCmd = "repeatkey" Then
-                    mstrRepeatKey = astrFields(1)
+                    mstrRepeatKey = astrFields(1) & strKeySuffix
                 ElseIf strCmd = "cashdelay" Then
                     maintCashDelay(intGetDOWCode(astrFields(1))) = Val(astrFields(2))
                 ElseIf strCmd = "carddelay" Then
@@ -87,7 +95,7 @@ Friend Class BuilderForm
                     mintCardMachineBrackets = mintCardMachineBrackets + 1
                     maudtCardMachineBracket(mintCardMachineBrackets).datStartDate = CDate(astrFields(1))
                     maudtCardMachineBracket(mintCardMachineBrackets).intMachineCount = CInt(astrFields(2))
-                    If maudtCardMachineBracket(mintCardMachineBrackets).datStartDate <= _
+                    If maudtCardMachineBracket(mintCardMachineBrackets).datStartDate <=
                         maudtCardMachineBracket(mintCardMachineBrackets - 1).datStartDate Then
                         MsgBox("Card machine count dates must be in increasing order")
                         End
@@ -95,23 +103,24 @@ Friend Class BuilderForm
                 ElseIf strCmd = "week" Then
                     If Not blnDidFirstWeek Then
                         ConfirmAllSetupDone()
-                        WriteLine_Renamed("<generator class=""wccheckbook.list"" description=""Daily Sales"" enabled=""true""" & " repeatkey=""" & mstrRepeatKey & """ startseq=""" & mintStartSeq & """>")
+                        WriteLine_Renamed("<generator class=""wccheckbook.list"" description=""" & strDescr & """ enabled=""true""" &
+                                          " repeatkey=""" & mstrRepeatKey & """ maxdaysold=""" & strMaxDaysOld & """ startseq=""" & mintStartSeq & """>")
                         blnDidFirstWeek = True
                     End If
-                    OutputWeek(astrFields)
+                    OutputWeek(astrFields, blnForCash)
                 Else
                     MsgBox("Unrecognized command " & strCmd)
                     Exit Sub
                 End If
             End If
-		Loop 
-		WriteLine_Renamed("</generator>")
-		FileClose(mintOutputFile)
-		
-		MsgBox("Done - output written to " & mstrOutputFile)
-	End Sub
-	
-	Private Function blnEndOfInput() As Boolean
+        Loop
+        WriteLine_Renamed("</generator>")
+        FileClose(mintOutputFile)
+
+        MsgBox("Done - output written to " & mstrOutputFile)
+    End Sub
+
+    Private Function blnEndOfInput() As Boolean
 		blnEndOfInput = mintNextInputLine > UBound(mastrInputLines)
 	End Function
 	
@@ -178,46 +187,45 @@ Friend Class BuilderForm
 	Private Sub ComputeTotalCatWeight()
 		mdblTotalCatWeight = mdblCardWeight + mdblCashWeight
 	End Sub
-	
-	Private Sub OutputWeek(ByRef astrFields() As String)
-		Dim datWeekStart As Date
-		Dim curWeekTotal As Decimal
-		datWeekStart = CDate(astrFields(1))
-		Dim intStartDOW As Short
-		intStartDOW = WeekDay(datWeekStart)
-		If intStartDOW <> FirstDayOfWeek.Monday Then
-			MsgBox("Week of " & datWeekStart & " must be a Monday, not a " & WeekDayName(WeekDay(datWeekStart)))
-			End
-		End If
-		curWeekTotal = CDec(astrFields(2))
-		OutputDay(datWeekStart, FirstDayOfWeek.Monday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Tuesday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Wednesday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Thursday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Friday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Saturday, curWeekTotal)
-		OutputDay(datWeekStart, FirstDayOfWeek.Sunday, curWeekTotal)
-	End Sub
-	
-	Private Sub OutputDay(ByVal datWeekStart As Date, ByVal intDOW As Short, ByVal curWeekTotal As Decimal)
-		Dim intCatIndex As Short
-		Dim strLine As String
-		Dim strDescr As String
-		Dim curDayAmount As Decimal
+
+    Private Sub OutputWeek(ByRef astrFields() As String, ByVal blnForCash As Boolean)
+        Dim datWeekStart As Date
+        Dim curWeekTotal As Decimal
+        datWeekStart = CDate(astrFields(1))
+        Dim intStartDOW As Short
+        intStartDOW = Weekday(datWeekStart)
+        If intStartDOW <> FirstDayOfWeek.Monday Then
+            MsgBox("Week of " & datWeekStart & " must be a Monday, not a " & WeekdayName(Weekday(datWeekStart)))
+            End
+        End If
+        curWeekTotal = CDec(astrFields(2))
+        OutputDay(datWeekStart, FirstDayOfWeek.Monday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Tuesday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Wednesday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Thursday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Friday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Saturday, curWeekTotal, blnForCash)
+        OutputDay(datWeekStart, FirstDayOfWeek.Sunday, curWeekTotal, blnForCash)
+    End Sub
+
+    Private Sub OutputDay(ByVal datWeekStart As Date, ByVal intDOW As Short, ByVal curWeekTotal As Decimal, ByVal blnForCash As Boolean)
+        Dim curDayAmount As Decimal
         Dim datSales As Date
         Dim intCardMachineBracket As Short
         Dim intCardMachineCount As Short
         Dim intCardMachineIndex As Short
-		
-		If intDOW = FirstDayOfWeek.Sunday Then
-			datSales = DateAdd(Microsoft.VisualBasic.DateInterval.Day, 6, datWeekStart)
-		Else
-			datSales = DateAdd(Microsoft.VisualBasic.DateInterval.Day, intDOW - 2, datWeekStart)
-		End If
-		curDayAmount = curWeekTotal * madblDayWeight(intDOW) / mdblTotalDayWeight
-		
-		WriteLine_Renamed("  <!-- " & WeekDayName(intDOW) & " " & VB6.Format(datSales, "mm/dd/yyyy") & " $" & VB6.Format(curDayAmount, "#######0.00") & " -->")
-		WriteTrx(curDayAmount, mdblCashWeight, mstrCashCatKey, "Cash &amp; Check Deposit", datWeekStart, datSales, intDOW, maintCashDelay)
+
+        If intDOW = FirstDayOfWeek.Sunday Then
+            datSales = DateAdd(Microsoft.VisualBasic.DateInterval.Day, 6, datWeekStart)
+        Else
+            datSales = DateAdd(Microsoft.VisualBasic.DateInterval.Day, intDOW - 2, datWeekStart)
+        End If
+        curDayAmount = curWeekTotal * madblDayWeight(intDOW) / mdblTotalDayWeight
+
+        WriteLine_Renamed("  <!-- " & WeekdayName(intDOW) & " " & VB6.Format(datSales, "mm/dd/yyyy") & " $" & VB6.Format(curDayAmount, "#######0.00") & " -->")
+        If blnForCash Then
+            WriteTrx(curDayAmount, mdblCashWeight, mstrCashCatKey, "Cash &amp; Check Deposit", datWeekStart, datSales, intDOW, maintCashDelay)
+        End If
 
         intCardMachineBracket = 1
         Do
@@ -231,12 +239,14 @@ Friend Class BuilderForm
         Loop
         intCardMachineCount = maudtCardMachineBracket(intCardMachineBracket).intMachineCount
         For intCardMachineIndex = 1 To intCardMachineCount
-            WriteTrx(curDayAmount / intCardMachineCount, mdblCardWeight, mstrCardCatKey, _
-                "Credit Card Deposit (#" & intCardMachineIndex & ")", datWeekStart, datSales, intDOW, maintCardDelay)
+            If Not blnForCash Then
+                WriteTrx(curDayAmount / intCardMachineCount, mdblCardWeight, mstrCardCatKey,
+                    "Credit Card Deposit (#" & intCardMachineIndex & ")", datWeekStart, datSales, intDOW, maintCardDelay)
+            End If
         Next
     End Sub
-	
-	Private Sub WriteTrx(ByVal curDayAmount As Decimal, ByVal dblCatWeight As Double, ByVal strCatKey As String, ByVal strDepositType As String, ByVal datWeekStart As Date, ByVal datSales As Date, ByVal intDOW As Short, ByRef aintDelay() As Short)
+
+    Private Sub WriteTrx(ByVal curDayAmount As Decimal, ByVal dblCatWeight As Double, ByVal strCatKey As String, ByVal strDepositType As String, ByVal datWeekStart As Date, ByVal datSales As Date, ByVal intDOW As Short, ByRef aintDelay() As Short)
 		
 		Dim curTrxAmount As Decimal
 		Dim datAvailable As Date
